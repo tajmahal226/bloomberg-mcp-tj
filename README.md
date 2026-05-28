@@ -146,6 +146,10 @@ pip install -e .
 > **Connecting other clients?** See [SETUP.md](SETUP.md) for step-by-step
 > setup of Claude Desktop, Claude Code, OpenAI Codex, and ChatGPT, plus
 > ready-to-edit config templates in [`mcp-configs/`](mcp-configs/).
+>
+> **Want it done for you?** Run `python scripts/setup.py` on the Terminal
+> machine — it installs the package and configures every client it detects.
+> For an exhaustive, every-step walkthrough see [RUNBOOK.md](RUNBOOK.md).
 
 ### Configure Claude Code
 
