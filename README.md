@@ -143,6 +143,10 @@ pip install blpapi
 pip install -e .
 ```
 
+> **Connecting other clients?** See [SETUP.md](SETUP.md) for step-by-step
+> setup of Claude Desktop, Claude Code, OpenAI Codex, and ChatGPT, plus
+> ready-to-edit config templates in [`mcp-configs/`](mcp-configs/).
+
 ### Configure Claude Code
 
 Add to your Claude Code MCP settings (`.claude.json` or via Claude Code settings UI):

@@ -1,0 +1,11 @@
+# Add this block to ~/.codex/config.toml
+# Codex launches the server over stdio, like the Claude clients.
+
+[mcp_servers.bloomberg]
+command = "bloomberg-mcp"
+args = []
+cwd = "/ABSOLUTE/PATH/TO/bloomberg-mcp-tj"
+
+[mcp_servers.bloomberg.env]
+BLOOMBERG_HOST = "localhost"
+BLOOMBERG_PORT = "8194"
