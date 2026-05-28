@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "bloomberg": {
+      "command": "bloomberg-mcp",
+      "args": [],
+      "env": {
+        "BLOOMBERG_HOST": "localhost",
+        "BLOOMBERG_PORT": "8194"
+      }
+    }
+  }
+}
