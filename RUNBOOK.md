@@ -131,9 +131,9 @@ finds. Run it from inside `<REPO>` with your venv still active.
    ```
    It will:
    - `pip install -e .` (creates the `bloomberg-mcp` command),
-   - write/merge config for Claude Desktop, Claude Code, and Codex **if they're
+   - write/merge config for Claude Desktop, Claude Code, ChatGPT desktop, and Codex **if they're
      installed** (backing up any file it touches),
-   - print manual steps for ChatGPT.
+   - print optional Secure MCP Tunnel steps for ChatGPT web.
 3. ✅ Note the summary at the end. Any client it skipped just means it wasn't
    detected — install that client and re-run, or configure it manually (Part 7).
 
@@ -166,11 +166,13 @@ used a venv — replace the command with your venv's Python (see note at the end
 - Or commit/copy `mcp-configs/claude-code.mcp.json` as `.mcp.json` at your
   project root.
 
-### 7c. OpenAI Codex CLI
+### 7c. ChatGPT desktop and OpenAI Codex
 1. ⌨️ Open `~/.codex/config.toml` (create it if missing).
 2. ⌨️ Append the block from `mcp-configs/codex-config.toml`, fixing the path.
+3. ✅ Restart the desktop app; ChatGPT desktop, Codex CLI, and Codex IDE share
+   this configuration.
 
-### 7d. ChatGPT — see Part 9 (it's different).
+### 7d. ChatGPT web — see Part 9 (optional).
 
 ---
 
@@ -191,29 +193,19 @@ If it fails to connect → **Part 10**.
 
 ---
 
-## Part 9 — ChatGPT (optional, extra steps)
+## Part 9 — ChatGPT web (optional, extra steps)
 
-ChatGPT cannot launch a local process; it connects to a **public HTTPS URL**.
+ChatGPT web cannot launch the local stdio process. Use OpenAI Secure MCP Tunnel
+so the server stays private rather than publishing it on the internet.
 
-1. ⌨️ Start the server in HTTP mode (venv active, `BLPAPI_ROOT` set):
-   ```
-   bloomberg-mcp --http --port=8080
-   ```
-   Leave this window running.
-2. ⌨️ In a second shell, expose it over HTTPS with a **secured** tunnel, e.g.:
-   ```
-   ngrok http 8080
-   ```
-   Copy the `https://....ngrok.app` URL it prints.
-3. ⌨️ In ChatGPT → **Settings → Connectors** (Developer Mode) → add a custom
-   connector → paste the URL (append the transport path, e.g. `/mcp`).
+1. ⌨️ Create a tunnel in OpenAI Platform tunnel settings.
+2. ⌨️ Run `tunnel-client` on this machine with a local stdio profile pointing to
+   `.venv\Scripts\python.exe -m bloomberg_mcp.server`.
+3. ⌨️ In ChatGPT developer mode, create an app and select the tunnel.
 4. ✅ Ask ChatGPT the same AAPL question as in Part 8.
 
-> ⚠️ **Security — read this.** A tunnel publishes live Terminal data to the open
-> internet. **Require authentication** (ngrok auth/OAuth, Cloudflare Access, or a
-> Tailscale-private network), never share the URL, and shut the tunnel down when
-> you're done. You are responsible for complying with your Bloomberg Subscriber
-> Agreement — the data is for your use only.
+> Keep this optional. You are responsible for complying with your Bloomberg
+> Subscriber Agreement; the data is for your use only.
 
 ---
 
@@ -226,7 +218,8 @@ ChatGPT cannot launch a local process; it connects to a **public HTTPS URL**.
 | `command not found: bloomberg-mcp` | The client uses a different Python than your venv. Point it at the venv interpreter (note below). |
 | `ImportError: blpapi` | `BLPAPI_ROOT` not set in the env the client launches with, or blpapi not installed in that interpreter. Make `BLPAPI_ROOT` permanent (Part 5 note) and reinstall blpapi. |
 | Port `8194` busy | Another blpapi app is bound. Close it, or set `BLOOMBERG_PORT` to your Terminal's API port. |
-| ChatGPT can't reach server | Tunnel down, or URL missing the transport path. Restart the tunnel; re-copy the URL. |
+| ChatGPT desktop can't see tools | Restart the app and verify the shared `~/.codex/config.toml` block. |
+| ChatGPT web can't reach server | Check `tunnel-client`, its health output, and the tunnel's workspace association. |
 
 ### Pointing a client at your venv's Python (common fix)
 If `bloomberg-mcp` isn't found, use the venv interpreter explicitly in the config:
@@ -240,11 +233,10 @@ venv is active.
 
 ## Part 11 — Day-to-day use
 
-- **stdio clients (Claude Desktop, Claude Code, Codex):** nothing to start — they
+- **stdio clients (Claude Desktop, Claude Code, ChatGPT desktop, Codex):** nothing to start — they
   launch the server automatically when they open. Just keep the **Terminal logged
   in**.
-- **ChatGPT:** re-run `bloomberg-mcp --http --port=8080` and your tunnel each
-  session (or set them up as a service).
+- **ChatGPT web:** keep `tunnel-client` running only when web access is needed.
 - **Updating the server:**
   ```
   cd <REPO>

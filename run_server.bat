@@ -11,16 +11,15 @@ REM   run_server.bat --sse    - Run with SSE transport on port 8080
 
 setlocal
 
-REM Activate virtual environment if it exists
-if exist "venv\Scripts\activate.bat" (
-    call venv\Scripts\activate.bat
-)
+REM Prefer the repo's virtual environment; fall back to Python on PATH.
+set "PYTHON_CMD=python"
+if exist "%~dp0.venv\Scripts\python.exe" set "PYTHON_CMD=%~dp0.venv\Scripts\python.exe"
 
-REM Set Bloomberg connection (localhost for local Terminal)
-set BLOOMBERG_HOST=localhost
+REM Set Bloomberg connection (loopback for local Terminal)
+set BLOOMBERG_HOST=127.0.0.1
 set BLOOMBERG_PORT=8194
 
 REM Run the MCP server
-python -m bloomberg_mcp.server %*
+"%PYTHON_CMD%" -m bloomberg_mcp.server %*
 
 endlocal

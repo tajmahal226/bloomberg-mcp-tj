@@ -33,7 +33,7 @@ graph TB
 
     subgraph "Bloomberg MCP Server"
         direction TB
-        MCP["FastMCP Server<br/><i>13 tools exposed</i>"]
+        MCP["FastMCP Server<br/><i>12 tools exposed</i>"]
 
         subgraph Tools["Tool Layer"]
             direction LR
@@ -298,7 +298,7 @@ You can also use Bloomberg index tickers (e.g., `index:SPX Index`) or saved EQS 
 graph TB
     subgraph "src/bloomberg_mcp/"
         INIT["__init__.py<br/><i>Public exports</i>"]
-        SERVER["server.py<br/><i>FastMCP server<br/>13 @mcp.tool handlers<br/>Pydantic input models</i>"]
+        SERVER["server.py<br/><i>FastMCP server<br/>12 @mcp.tool handlers<br/>Pydantic input models</i>"]
 
         subgraph core["core/"]
             SESSION["session.py<br/><i>BloombergSession singleton</i>"]
@@ -348,7 +348,7 @@ graph TB
 bloomberg-mcp/
 ├── src/bloomberg_mcp/
 │   ├── __init__.py              # Public API exports
-│   ├── server.py                # FastMCP server (13 tools)
+│   ├── server.py                # FastMCP server (12 tools)
 │   ├── core/
 │   │   ├── session.py           # BloombergSession singleton
 │   │   ├── requests.py          # blpapi request builders

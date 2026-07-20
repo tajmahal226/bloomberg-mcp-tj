@@ -9,8 +9,9 @@ It will:
   1. Check your Python and blpapi installation.
   2. Install this package (pip install -e .) so the `bloomberg-mcp` command exists.
   3. Detect which AI clients you have and write/merge their MCP config
-     (Claude Desktop, Claude Code, OpenAI Codex), backing up anything it changes.
-  4. Print next steps for ChatGPT (which needs a remote URL, not a local config).
+     (Claude Desktop, Claude Code, OpenAI Codex and ChatGPT desktop), backing up
+     anything it changes.
+  4. Print optional next steps for ChatGPT web through Secure MCP Tunnel.
 
 Nothing here talks to the Terminal — it only wires up the clients. Re-running is
 safe: existing config is backed up and the "bloomberg" entry is updated in place.
@@ -182,7 +183,7 @@ def setup_claude_code(launch: list[str], dry_run: bool) -> None:
 
 
 def setup_codex(launch: list[str], dry_run: bool) -> None:
-    section("OpenAI Codex CLI")
+    section("ChatGPT desktop / OpenAI Codex")
     path = Path.home() / ".codex" / "config.toml"
     if not path.parent.exists():
         info("No ~/.codex directory — Codex doesn't look installed. Skipping.")
@@ -200,8 +201,10 @@ def setup_codex(launch: list[str], dry_run: bool) -> None:
         f'command = "{launch[0]}"\n'
         f"args = [{args_toml}]\n"
         f'cwd = "{REPO_ROOT}"\n\n'
+        "startup_timeout_sec = 30\n"
+        "tool_timeout_sec = 120\n\n"
         "[mcp_servers.bloomberg.env]\n"
-        'BLOOMBERG_HOST = "localhost"\n'
+        'BLOOMBERG_HOST = "127.0.0.1"\n'
         'BLOOMBERG_PORT = "8194"\n'
     )
     if dry_run:
@@ -214,13 +217,11 @@ def setup_codex(launch: list[str], dry_run: bool) -> None:
 
 
 def chatgpt_notes() -> None:
-    section("ChatGPT (manual — remote URL only)")
-    info("ChatGPT can't launch a local process. To use it:")
-    info("  1. Run:  bloomberg-mcp --http --port=8080")
-    info("  2. Expose port 8080 over HTTPS with a SECURED tunnel "
-         "(ngrok/Cloudflare/Tailscale).")
-    info("  3. Add that URL as a custom connector in ChatGPT (Settings -> Connectors).")
-    info("  See SETUP.md for the security warning — this exposes live Terminal data.")
+    section("ChatGPT")
+    info("ChatGPT desktop shares ~/.codex/config.toml with Codex; restart the app")
+    info("after setup and confirm bloomberg under Settings -> MCP servers.")
+    info("For ChatGPT web, use OpenAI Secure MCP Tunnel instead of exposing the")
+    info("Bloomberg server publicly. See SETUP.md for the optional web steps.")
 
 
 # --------------------------------------------------------------------------- #

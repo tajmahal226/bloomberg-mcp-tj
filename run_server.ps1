@@ -14,23 +14,26 @@ param(
     [int]$port = 8080
 )
 
-# Activate virtual environment if it exists
-if (Test-Path "venv\Scripts\Activate.ps1") {
-    . .\venv\Scripts\Activate.ps1
+$repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$venvPython = Join-Path $repoRoot ".venv\Scripts\python.exe"
+$pythonPath = if (Test-Path -LiteralPath $venvPython) {
+    $venvPython
+} else {
+    (Get-Command python -ErrorAction Stop).Source
 }
 
-# Set Bloomberg connection (localhost for local Terminal)
-$env:BLOOMBERG_HOST = "localhost"
+# Set Bloomberg connection (loopback for local Terminal)
+$env:BLOOMBERG_HOST = "127.0.0.1"
 $env:BLOOMBERG_PORT = "8194"
 
 # Build arguments
-$args = @()
+$serverArgs = @()
 if ($http) {
-    $args += "--http"
-    $args += "--port=$port"
+    $serverArgs += "--http"
+    $serverArgs += "--port=$port"
 } elseif ($sse) {
-    $args += "--sse"
-    $args += "--port=$port"
+    $serverArgs += "--sse"
+    $serverArgs += "--port=$port"
 }
 
 # Run the MCP server
@@ -38,10 +41,10 @@ Write-Host "Starting Bloomberg MCP Server..."
 Write-Host "Bloomberg Host: $env:BLOOMBERG_HOST"
 Write-Host "Bloomberg Port: $env:BLOOMBERG_PORT"
 
-if ($args.Count -gt 0) {
+if ($serverArgs.Count -gt 0) {
     Write-Host "Transport: HTTP/SSE on port $port"
-    python -m bloomberg_mcp.server @args
+    & $pythonPath -m bloomberg_mcp.server @serverArgs
 } else {
     Write-Host "Transport: stdio"
-    python -m bloomberg_mcp.server
+    & $pythonPath -m bloomberg_mcp.server
 }

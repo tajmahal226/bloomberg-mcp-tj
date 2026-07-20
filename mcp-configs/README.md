@@ -10,11 +10,12 @@ path to this repo on the machine that runs your Bloomberg Terminal.
 |------|--------|---------------|
 | `claude-desktop.json` | Claude Desktop | merge into `claude_desktop_config.json` |
 | `claude-code.mcp.json` | Claude Code | save as `.mcp.json` at your project root |
-| `codex-config.toml` | OpenAI Codex CLI | merge into `~/.codex/config.toml` |
+| `codex-config.toml` | ChatGPT desktop, Codex CLI, Codex IDE | merge into `~/.codex/config.toml` |
 
-**ChatGPT** has no template — it connects to a remote HTTPS URL rather than a
-local config file. Run `bloomberg-mcp --http --port=8080`, expose it through a
-secured tunnel, and add the URL as a custom connector. See `../SETUP.md`.
+The **ChatGPT desktop app** shares the Codex MCP configuration and can launch
+this local stdio server directly. **ChatGPT web** needs a remote connection;
+use OpenAI Secure MCP Tunnel rather than exposing the server publicly. See
+`../SETUP.md`.
 
 ## Using a virtualenv?
 

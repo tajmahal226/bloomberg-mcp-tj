@@ -1,7 +1,8 @@
 # Setup Guide
 
 This guide wires the Bloomberg MCP server into the AI clients you use:
-**Claude Desktop**, **Claude Code**, **OpenAI Codex CLI**, and **ChatGPT**.
+**Claude Desktop**, **Claude Code**, **ChatGPT desktop**, **OpenAI Codex CLI/IDE**,
+and optionally **ChatGPT web**.
 
 The server is a single program. You run it **once on the machine that has the
 Bloomberg Terminal**, and every client talks to that one server. There is no
@@ -43,8 +44,8 @@ python -c "import blpapi, bloomberg_mcp; print('ok')"
 
 | Transport | Command | Use it for |
 |-----------|---------|------------|
-| **stdio** (default) | `bloomberg-mcp` | Claude Desktop, Claude Code, Codex — the client launches the process |
-| **HTTP** | `bloomberg-mcp --http --port=8080` | ChatGPT connectors, remote/web clients |
+| **stdio** (default) | `bloomberg-mcp` | Claude clients, ChatGPT desktop, Codex CLI/IDE — the client launches the process |
+| **HTTP** | `bloomberg-mcp --http --port=8080` | Private remote clients when required |
 | **SSE** | `bloomberg-mcp --sse --port=8080` | Legacy streaming clients |
 
 stdio clients start the server for you, so you don't run anything by hand for
@@ -79,35 +80,27 @@ claude mcp add bloomberg -- bloomberg-mcp
 Or commit a project-scoped [`.mcp.json`](mcp-configs/claude-code.mcp.json) at
 the repo root (template provided). Confirm with `/mcp` inside Claude Code.
 
-### OpenAI Codex CLI
+### ChatGPT desktop and OpenAI Codex
 
 Add the block from [`mcp-configs/codex-config.toml`](mcp-configs/codex-config.toml)
-to `~/.codex/config.toml`. Codex launches it over stdio like the Claude clients.
+to `~/.codex/config.toml`. The ChatGPT desktop app, Codex CLI, and Codex IDE
+extension share this file and launch the server over stdio. Restart the desktop
+app after editing, then confirm `bloomberg` under **Settings → MCP servers** or
+with `/mcp`.
 
-### ChatGPT
+### ChatGPT web (optional)
 
-ChatGPT can't spawn a local process — it connects to a **remote MCP server over
-a public HTTPS URL**, so there are extra steps:
+ChatGPT web cannot spawn the local stdio process directly. Use OpenAI
+[Secure MCP Tunnel](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels)
+to keep the Bloomberg server private:
 
-1. Run the server in HTTP mode on the Terminal machine:
-   ```bash
-   bloomberg-mcp --http --port=8080
-   ```
-2. Expose it over HTTPS with a tunnel — [ngrok](https://ngrok.com),
-   [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/),
-   or [Tailscale](https://tailscale.com). Example:
-   ```bash
-   ngrok http 8080
-   ```
-3. In ChatGPT, open **Settings → Connectors** (Developer Mode), add a custom
-   connector, and paste the public URL from your tunnel
-   (e.g. `https://<subdomain>.ngrok.app/mcp`).
+1. Create a tunnel in OpenAI Platform tunnel settings.
+2. Run `tunnel-client` on the Terminal machine and point its local stdio profile
+   at this repo's `.venv` Python with `-m bloomberg_mcp.server`.
+3. In ChatGPT developer mode, create an app and choose that tunnel connection.
 
-> ⚠️ **Security:** a tunnel exposes live Terminal data to the public internet.
-> Always put authentication in front of it (ngrok auth, Cloudflare Access, or a
-> Tailscale-only network) and never leave an open tunnel running unattended.
-> Your Bloomberg Subscriber Agreement governs redistribution of this data —
-> keep it to your own use.
+> Keep the server local-only unless web access is genuinely needed. Bloomberg's
+> Subscriber Agreement governs data use and redistribution.
 
 ---
 
@@ -141,5 +134,6 @@ and that nothing else is bound to port 8194.
 | `Connection failed` / `Failed to start Bloomberg session` | Terminal not running/logged in, or server not on the Terminal machine |
 | Client doesn't list the tools | Wrong `cwd`/path in config; use absolute paths and the venv's Python |
 | `command not found: bloomberg-mcp` | Package not installed in the interpreter the client uses; use `python -m bloomberg_mcp.server` with an absolute python path instead |
-| ChatGPT can't reach the server | Tunnel down, or URL missing the transport path (e.g. `/mcp` for HTTP) |
+| ChatGPT desktop doesn't list the tools | Restart the app and confirm the shared `~/.codex/config.toml` entry |
+| ChatGPT web can't reach the server | Secure MCP Tunnel is stopped, unhealthy, or not associated with the target workspace |
 | Port 8194 in use | Another blpapi client/instance is bound; close it or set `BLOOMBERG_PORT` |
